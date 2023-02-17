@@ -37,13 +37,15 @@ function RoomList() {
             params: {roomId}
         });
         console.log(response.data);
-        return response.data;
     }
 
     const onCreateRoomHandler = (event: any) => {
         event.preventDefault();
         createRoom(roomName).then((res) => {
             console.log(res);
+            alert("채팅방이 생성되었습니다.");
+        }).catch((err) => {
+            alert("채팅방 생성에 실패하였습니다.");
         })
         window.location.replace(ROOT_PATH);
     };
@@ -52,11 +54,15 @@ function RoomList() {
         setRoomName(event.target.value);
     }
 
-
-    const onEnterRoomHandler = (event: any) => {
+    const onEnterRoomHandler = (event: any, roomId: number) => {
         console.log(event);
-        enterRoom(event.roomId);
-        // navigate(ROOM_DETAIL_PATH + `?roomId=${roomId}`);
+        enterRoom(roomId).then((res) => {
+            console.log(res);
+            alert("채팅방 입장에 성공하였습니다.");
+            navigate(ROOM_DETAIL_PATH + `?roomId=${roomId}`);
+        }).catch((err) => {
+            alert("채팅방 입장에 실패하였습니다..");
+        })
     }
 
     return (
@@ -82,7 +88,7 @@ function RoomList() {
                 </div>
                 <ul className="list-group">
                     {roomList && roomList.map(room => (
-                        <li key={room.roomId} className="list-group-item list-group-item-action" onClick={onEnterRoomHandler}>
+                        <li key={room.roomId} className="list-group-item list-group-item-action" onClick={event => {onEnterRoomHandler(event, parseInt(room.roomId))}}>
                             {room.roomName}
                         </li>
                     ))}
