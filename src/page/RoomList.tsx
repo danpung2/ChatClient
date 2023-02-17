@@ -1,8 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import {GET_ALL_CHAT_ROOM, CREATE_ROOM, ENTER_ROOM} from "../common/constants/api.const";
-import {useNavigate} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {ROOT_PATH, ROOM_LIST_PATH, ROOM_DETAIL_PATH} from "../common/constants/path.const";
+import SockJS from 'sockjs-client';
+import StompJs from '@stomp/stompjs';
 
 interface Room {
     roomId: string;
@@ -32,7 +34,69 @@ function RoomList() {
         console.log(response.data);
     }
 
-    async function enterRoom(roomId: number){
+    // function CreateReadChat() {
+    //     const [chatList, setChatList] = useState([]);
+    //     const [chat, setChat] = useState('');
+    //
+    //     const {apply_id} = useParams();
+    //     const client = useRef({});
+    //
+    //     const connect = () => {
+    //         client.current = new StompJs.Client({
+    //             brokerURL: 'ws://localhost:8787/ws/chat',
+    //             onConnect: () => {
+    //                 console.log('success');
+    //                 subscribe();
+    //             },
+    //         });
+    //         client.current.activate();
+    //     };
+    //
+    //     const publish = (chat) => {
+    //         if (!client.current.connected) return;
+    //
+    //         client.current.publish({
+    //             destination: '/pub/chat',
+    //             body: JSON.stringify({
+    //                 applyId: apply_id,
+    //                 chat: chat,
+    //             }),
+    //         });
+    //
+    //         setChat('');
+    //     };
+    //
+    //     const subscribe = () => {
+    //         client.current.subscribe('/sub/chat/' + apply_id, (body) => {
+    //             const json_body = JSON.parse(body.body);
+    //             setChatList((_chat_list) => [
+    //                 ..._chat_list, json_body
+    //             ]);
+    //         });
+    //     };
+    //
+    //     const disconnect = () => {
+    //         client.current.deactivate();
+    //     };
+    //
+    //     const handleChange = (event) => { // 채팅 입력 시 state에 값 설정
+    //         setChat(event.target.value);
+    //     };
+    //
+    //     const handleSubmit = (event, chat) => { // 보내기 버튼 눌렀을 때 publish
+    //         event.preventDefault();
+    //
+    //         publish(chat);
+    //     };
+    //
+    //     useEffect(() => {
+    //         connect();
+    //
+    //         return () => disconnect();
+    //     }, []);
+    // }
+
+    async function enterRoom(roomId: number) {
         const response = await axios.get(ENTER_ROOM, {
             params: {roomId}
         });
@@ -88,7 +152,9 @@ function RoomList() {
                 </div>
                 <ul className="list-group">
                     {roomList && roomList.map(room => (
-                        <li key={room.roomId} className="list-group-item list-group-item-action" onClick={event => {onEnterRoomHandler(event, parseInt(room.roomId))}}>
+                        <li key={room.roomId} className="list-group-item list-group-item-action" onClick={event => {
+                            onEnterRoomHandler(event, parseInt(room.roomId))
+                        }}>
                             {room.roomName}
                         </li>
                     ))}

@@ -1,6 +1,8 @@
+
+// TODO - 채팅방 입장 시 대화명 없으면 받아서 대화명, roomId localStorage 에 저장
+// TODO - 채팅방 웹소켓 설정
+
 function RoomDetail() {
-
-
     return (
         <>
             <div className="container" id="app">
