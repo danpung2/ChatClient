@@ -1,8 +1,28 @@
-
-// TODO - 채팅방 입장 시 대화명 없으면 받아서 대화명, roomId localStorage 에 저장
 // TODO - 채팅방 웹소켓 설정
 
+import {useEffect, useRef, useState} from "react";
+import {useParams} from "react-router-dom";
+import StompJs from "@stomp/stompjs";
+
 function RoomDetail() {
+    const [sender, setSender] = useState("");
+
+    useEffect(() => {
+        checkNickname()
+    }, []);
+
+    const checkNickname = () => {
+        const nickname = localStorage.getItem("nickname");
+        if(nickname === null)
+            alert("비회원은 채팅이 불가능합니다.");
+        else {
+            setSender(nickname);
+            localStorage.setItem("sender", sender);
+        }
+    }
+
+
+
     return (
         <>
             <div className="container" id="app">
@@ -27,6 +47,8 @@ function RoomDetail() {
                 </ul>
                 <div></div>
             </div>
+
+
         </>
     )
 }

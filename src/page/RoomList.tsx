@@ -34,74 +34,21 @@ function RoomList() {
         console.log(response.data);
     }
 
-    // function CreateReadChat() {
-    //     const [chatList, setChatList] = useState([]);
-    //     const [chat, setChat] = useState('');
-    //
-    //     const {apply_id} = useParams();
-    //     const client = useRef({});
-    //
-    //     const connect = () => {
-    //         client.current = new StompJs.Client({
-    //             brokerURL: 'ws://localhost:8787/ws/chat',
-    //             onConnect: () => {
-    //                 console.log('success');
-    //                 subscribe();
-    //             },
-    //         });
-    //         client.current.activate();
-    //     };
-    //
-    //     const publish = (chat) => {
-    //         if (!client.current.connected) return;
-    //
-    //         client.current.publish({
-    //             destination: '/pub/chat',
-    //             body: JSON.stringify({
-    //                 applyId: apply_id,
-    //                 chat: chat,
-    //             }),
-    //         });
-    //
-    //         setChat('');
-    //     };
-    //
-    //     const subscribe = () => {
-    //         client.current.subscribe('/sub/chat/' + apply_id, (body) => {
-    //             const json_body = JSON.parse(body.body);
-    //             setChatList((_chat_list) => [
-    //                 ..._chat_list, json_body
-    //             ]);
-    //         });
-    //     };
-    //
-    //     const disconnect = () => {
-    //         client.current.deactivate();
-    //     };
-    //
-    //     const handleChange = (event) => { // 채팅 입력 시 state에 값 설정
-    //         setChat(event.target.value);
-    //     };
-    //
-    //     const handleSubmit = (event, chat) => { // 보내기 버튼 눌렀을 때 publish
-    //         event.preventDefault();
-    //
-    //         publish(chat);
-    //     };
-    //
-    //     useEffect(() => {
-    //         connect();
-    //
-    //         return () => disconnect();
-    //     }, []);
-    // }
-
     async function enterRoom(roomId: number) {
         const response = await axios.get(ENTER_ROOM, {
-            params: {roomId}
+            params: {roomId, userId: 99}
         });
         console.log(response.data);
+        localStorage.setItem("nickname", response.data.user.nickname);
     }
+    // TODO: 유저 정보
+    // async function enterRoom(roomId: number, userId: number) {
+    //     const response = await axios.get(ENTER_ROOM, {
+    //         params: {roomId, userId}
+    //     });
+    //     console.log(response.data);
+    //     localStorage.setItem("nickname", response.data.user.nickname);
+    // }
 
     const onCreateRoomHandler = (event: any) => {
         event.preventDefault();
@@ -121,11 +68,11 @@ function RoomList() {
     const onEnterRoomHandler = (event: any, roomId: number) => {
         console.log(event);
         enterRoom(roomId).then((res) => {
-            console.log(res);
             alert("채팅방 입장에 성공하였습니다.");
-            navigate(ROOM_DETAIL_PATH + `?roomId=${roomId}`);
+            navigate(ROOM_DETAIL_PATH);
+            // localStorage.setItem("sender", res);
         }).catch((err) => {
-            alert("채팅방 입장에 실패하였습니다..");
+            alert("채팅방 입장에 실패하였습니다.");
         })
     }
 
