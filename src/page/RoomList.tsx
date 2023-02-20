@@ -5,6 +5,8 @@ import {useNavigate, useParams} from "react-router-dom";
 import {ROOT_PATH, ROOM_LIST_PATH, ROOM_DETAIL_PATH} from "../common/constants/path.const";
 import SockJS from 'sockjs-client';
 import StompJs from '@stomp/stompjs';
+import {useSelector} from "react-redux";
+import {RootState} from "../redux/store";
 
 interface Room {
     roomId: string;
@@ -17,13 +19,14 @@ function RoomList() {
     const [loading, setLoading] = useState(false);
     const [roomName, setRoomName] = useState("");
 
+    const userId = useSelector((state: RootState) => state.persist.user.user.id);
+
     useEffect(() => {
         getAllRoomList()
     }, []);
 
     const getAllRoomList = async () => {
         const response = await axios.get(GET_ALL_CHAT_ROOM);
-        console.log(response.data);
         setRoomList(response.data);
     }
 
@@ -41,6 +44,7 @@ function RoomList() {
         console.log(response.data);
         localStorage.setItem("nickname", response.data.user.nickname);
     }
+
     // TODO: 유저 정보
     // async function enterRoom(roomId: number, userId: number) {
     //     const response = await axios.get(ENTER_ROOM, {
@@ -52,12 +56,16 @@ function RoomList() {
 
     const onCreateRoomHandler = (event: any) => {
         event.preventDefault();
-        createRoom(roomName).then((res) => {
-            console.log(res);
-            alert("채팅방이 생성되었습니다.");
-        }).catch((err) => {
-            alert("채팅방 생성에 실패하였습니다.");
-        })
+        if (userId === 0) {
+            alert("채팅방을 생성하려면 로그인이 필요합니다.");
+        } else {
+            createRoom(roomName).then((res) => {
+                console.log(res);
+                alert("채팅방이 생성되었습니다.");
+            }).catch((err) => {
+                alert("채팅방 생성에 실패하였습니다.");
+            })
+        }
         window.location.replace(ROOT_PATH);
     };
 
@@ -66,7 +74,6 @@ function RoomList() {
     }
 
     const onEnterRoomHandler = (event: any, roomId: number) => {
-        console.log(event);
         enterRoom(roomId).then((res) => {
             alert("채팅방 입장에 성공하였습니다.");
             navigate(ROOM_DETAIL_PATH);

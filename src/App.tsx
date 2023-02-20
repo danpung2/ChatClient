@@ -4,18 +4,23 @@ import {BrowserRouter, Route, Router, Routes, useLocation} from 'react-router-do
 import RoomList from "./page/RoomList";
 import {ROOM_DETAIL_PATH, ROOM_LIST_PATH, ROOT_PATH} from "./common/constants/path.const";
 import RoomDetail from "./page/RoomDetail";
+import {Provider, useSelector} from 'react-redux';
+import store, {RootState} from "./redux/store";
 
 
 function App() {
     // const location = useLocation();
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path={ROOT_PATH} element={<RoomList/>}/>
-                <Route path={ROOM_LIST_PATH} element={<RoomList/>}/>
-                <Route path={ROOM_DETAIL_PATH} element={<RoomDetail/>}/>
-            </Routes>
-        </BrowserRouter>
+        <Provider store={store}>
+            <BrowserRouter>
+                <Routes>
+                    <Route path={ROOT_PATH} element={<RoomList/>}/>
+                    <Route path={ROOM_LIST_PATH} element={<RoomList/>}/>
+                    <Route path={ROOM_DETAIL_PATH} element={<RoomDetail/>}/>
+                </Routes>
+            </BrowserRouter>
+
+        </Provider>
 
     )
 }
