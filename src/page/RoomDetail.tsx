@@ -3,9 +3,13 @@
 import {useEffect, useRef, useState} from "react";
 import {useParams} from "react-router-dom";
 import StompJs from "@stomp/stompjs";
+import {useSelector} from "react-redux";
+import {RootState} from "../redux/store";
 
 function RoomDetail() {
     const [sender, setSender] = useState("");
+
+    const userId = useSelector((state: RootState) => state.persist.user.user.id);
 
     useEffect(() => {
         checkNickname()
