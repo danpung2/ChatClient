@@ -23,7 +23,7 @@ function RoomList() {
     const userId = useSelector((state: RootState) => state.persist.user.user.id);
 
     useEffect(() => {
-        getAllRoomList()
+        getAllRoomList();
     }, []);
 
     const getAllRoomList = async () => {
@@ -80,6 +80,8 @@ function RoomList() {
             navigate(ROOM_DETAIL_PATH);
             // localStorage.setItem("sender", res);
         }).catch((err) => {
+            console.log(err);
+            console.log(userId);
             alert("채팅방 입장에 실패하였습니다.");
         })
     }

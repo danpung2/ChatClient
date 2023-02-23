@@ -1,5 +1,5 @@
 import {useState} from "react";
-import axios from "axios";
+import axios, {AxiosResponse} from "axios";
 import {LOGIN} from "../common/constants/api.const";
 import {Button, Card, CardBody, CardHeader, Col, Form, FormGroup, Input, Row} from "reactstrap";
 import {useNavigate} from "react-router-dom";
@@ -27,32 +27,60 @@ function Login() {
 
     const onSubmitLogin = (e: any) => {
         e.preventDefault();
-        login().then((res) => {
-            console.log(res);
-            console.log(res.headers);
-            console.log(res.data);
-            // dispatch(
-            //     userActions.login({
-            //         isLogin: true,
-            //         user: {
-            //             id: res.data.userId,
-            //             nickname: res.data.nickname,
-            //             email: res.data.email
-            //         }
-            //     })
-            // );
-            // const accessToken = res.headers.authorization_access;
-            // const refreshToken = res.headers.authorization_refresh;
-            // localStorage.setItem('accessToken', accessToken);
-            // localStorage.setItem('refreshToken', refreshToken);
-            //
-            // navigate(ROOT_PATH, { replace: true });
+        login(
+            { email, password }, (response: AxiosResponse) => {
+                const data = response.data;
+                console.log(data);
+                console.log(response);
+                dispatch(
+                    userActions.login({
+                        isLogin: true,
+                        user: {
+                            id: data.user.userId,
+                            nickname: data.user.nickname,
+                            email: data.user.email
+                        }
+                    }),
+                );
+
+                const accessToken = response.headers.authorization_access;
+                const refreshToken = response.headers.authorization_refresh;
+                localStorage.setItem('accessToken', accessToken);
+                localStorage.setItem('refreshToken', refreshToken);
+            },
+            dispatch,
+        ).then((res) => {
+            alert("로그인에 성공했습니다.");
+            navigate(ROOT_PATH, { replace: true });
         }).catch((err) => {
-            console.log(err);
-        })
+            alert("로그인에 실패했습니다.");
+            // window.location.reload();
+        });
+        // login({email, password}, dispatch).then((res) => {
+        //     dispatch(
+        //         userActions.login({
+        //             isLogin: true,
+        //             user: {
+        //                 id: res.data.userId,
+        //                 nickname: res.data.nickname,
+        //                 email: res.data.email
+        //             }
+        //         })
+        //     );
+        //     const accessToken = res.headers.authorization_access;
+        //     const refreshToken = res.headers.authorization_refresh;
+        //     localStorage.setItem('ACCESS_TOKEN', accessToken);
+        //     localStorage.setItem('REFRESH_TOKEN', refreshToken);
+        //     alert("로그인에 성공하였습니다.");
+        //     navigate(ROOT_PATH, { replace: true });
+        // }).catch((err) => {
+        //     console.log(err);
+        //     alert("로그인에 실패하였습니다.");
+        //     // window.location.reload();
+        // })
     }
 
-    const login = async () => {
+    const login = async (data: { email: string; password: string }, success: (data: AxiosResponse) => void, dispatch: any) => {
         return await axios.post(LOGIN, {email, password});
     }
 
