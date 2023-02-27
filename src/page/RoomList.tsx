@@ -20,6 +20,7 @@ function RoomList() {
     const [loading, setLoading] = useState(false);
     const [roomName, setRoomName] = useState("");
 
+    const isLogin = useSelector((state: RootState) => state.persist.user.isLogin);
     const userId = useSelector((state: RootState) => state.persist.user.user.id);
 
     useEffect(() => {
@@ -57,7 +58,8 @@ function RoomList() {
 
     const onCreateRoomHandler = (event: any) => {
         event.preventDefault();
-        if (userId === 0) {
+
+        if (!isLogin) {
             alert("채팅방을 생성하려면 로그인이 필요합니다.");
         } else {
             createRoom(roomName).then((res) => {
@@ -93,8 +95,10 @@ function RoomList() {
                     <div className="row">
                         <div className="col-md-12">
                             <h3 className="title d-inline">채팅방 리스트</h3>
-                            <Button className="btn-primary" style={{float: "right"}} onClick={() => navigate(JOIN_PATH)}>회원가입</Button>
-                            <Button className="btn-primary" style={{float: "right"}} onClick={() => navigate(LOGIN_PATH)}>로그인</Button>
+                            <Button className="btn-primary" style={{float: "right"}}
+                                    onClick={() => navigate(JOIN_PATH)}>회원가입</Button>
+                            <Button className="btn-primary" style={{float: "right"}}
+                                    onClick={() => navigate(LOGIN_PATH)}>로그인</Button>
                         </div>
                     </div>
                     <div className="input-group">
