@@ -22,6 +22,7 @@ function RoomList() {
 
     const isLogin = useSelector((state: RootState) => state.persist.user.isLogin);
     const userId = useSelector((state: RootState) => state.persist.user.user.id);
+    const nickname = useSelector((state: RootState) => state.persist.user.user.nickname);
 
     useEffect(() => {
         getAllRoomList();
@@ -39,22 +40,12 @@ function RoomList() {
         console.log(response.data);
     }
 
-    async function enterRoom(roomId: number) {
+    async function enterRoom(roomId: number, nickname: string) {
         const response = await axios.get(ENTER_ROOM, {
-            params: {roomId, userId}
+            params: {roomId, nickname}
         });
         console.log(response.data);
-        localStorage.setItem("nickname", response.data.user.nickname);
     }
-
-    // TODO: 유저 정보
-    // async function enterRoom(roomId: number, userId: number) {
-    //     const response = await axios.get(ENTER_ROOM, {
-    //         params: {roomId, userId}
-    //     });
-    //     console.log(response.data);
-    //     localStorage.setItem("nickname", response.data.user.nickname);
-    // }
 
     const onCreateRoomHandler = (event: any) => {
         event.preventDefault();
@@ -76,14 +67,11 @@ function RoomList() {
         setRoomName(event.target.value);
     }
 
-    const onEnterRoomHandler = (event: any, roomId: number) => {
-        enterRoom(roomId).then((res) => {
+    const onEnterRoomHandler = (event: any, roomId: number, nickname: string) => {
+        enterRoom(roomId, nickname).then((res) => {
             alert("채팅방 입장에 성공하였습니다.");
             navigate(ROOM_DETAIL_PATH);
-            // localStorage.setItem("sender", res);
         }).catch((err) => {
-            console.log(err);
-            console.log(userId);
             alert("채팅방 입장에 실패하였습니다.");
         })
     }
@@ -116,7 +104,7 @@ function RoomList() {
                 <ul className="list-group">
                     {roomList && roomList.map(room => (
                         <li key={room.roomId} className="list-group-item list-group-item-action" onClick={event => {
-                            onEnterRoomHandler(event, parseInt(room.roomId))
+                            onEnterRoomHandler(event, parseInt(room.roomId), nickname)
                         }}>
                             {room.roomName}
                         </li>

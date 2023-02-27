@@ -10,22 +10,19 @@ function RoomDetail() {
     const [sender, setSender] = useState("");
 
     const userId = useSelector((state: RootState) => state.persist.user.user.id);
+    const nickname = useSelector((state: RootState) => state.persist.user.user.nickname);
 
     useEffect(() => {
         checkNickname()
     }, []);
 
     const checkNickname = () => {
-        const nickname = localStorage.getItem("nickname");
         if(nickname === null)
             alert("비회원은 채팅이 불가능합니다.");
         else {
-            setSender(nickname);
-            localStorage.setItem("sender", sender);
+
         }
     }
-
-
 
     return (
         <>
