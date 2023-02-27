@@ -8,10 +8,15 @@ import {Provider, useSelector} from 'react-redux';
 import store, {RootState} from "./redux/store";
 import Login from "./page/Login";
 import Join from "./page/Join";
-
+import {WS_DEFAULT} from "./common/constants/ws.const";
 
 function App() {
-    // const location = useLocation();
+    const ws = new WebSocket(WS_DEFAULT);
+
+    ws.onopen = () => {
+        console.log("[Connected]");
+    }
+
     return (
         <Provider store={store}>
             <BrowserRouter>

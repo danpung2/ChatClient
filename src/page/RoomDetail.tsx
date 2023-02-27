@@ -7,7 +7,6 @@ import {useSelector} from "react-redux";
 import {RootState} from "../redux/store";
 
 function RoomDetail() {
-    const [sender, setSender] = useState("");
 
     const userId = useSelector((state: RootState) => state.persist.user.user.id);
     const nickname = useSelector((state: RootState) => state.persist.user.user.nickname);

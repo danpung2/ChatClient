@@ -70,8 +70,10 @@ function RoomList() {
     const onEnterRoomHandler = (event: any, roomId: number, nickname: string) => {
         enterRoom(roomId, nickname).then((res) => {
             alert("채팅방 입장에 성공하였습니다.");
+
             navigate(ROOM_DETAIL_PATH);
         }).catch((err) => {
+            console.log(err);
             alert("채팅방 입장에 실패하였습니다.");
         })
     }
