@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from "react";
 import axios from "axios";
 import {GET_ALL_CHAT_ROOM, CREATE_ROOM, ENTER_ROOM} from "../common/constants/api.const";
 import {useNavigate, useParams} from "react-router-dom";
-import {ROOT_PATH, ROOM_DETAIL_PATH, LOGIN_PATH, JOIN_PATH} from "../common/constants/path.const";
+import {ROOT_PATH, ROOM_DETAIL_PATH, LOGIN_PATH, JOIN_PATH, MY_ACCOUNT_PATH} from "../common/constants/path.const";
 import SockJS from 'sockjs-client';
 import StompJs from '@stomp/stompjs';
 import {useSelector} from "react-redux";
@@ -17,7 +17,6 @@ interface Room {
 function RoomList() {
     const navigate = useNavigate();
     const [roomList, setRoomList] = useState<Room[]>([]);
-    const [loading, setLoading] = useState(false);
     const [roomName, setRoomName] = useState("");
 
     const isLogin = useSelector((state: RootState) => state.persist.user.isLogin);
@@ -31,6 +30,10 @@ function RoomList() {
     const getAllRoomList = async () => {
         const response = await axios.get(GET_ALL_CHAT_ROOM);
         setRoomList(response.data);
+    }
+
+    const onClickLogout = async () => {
+
     }
 
     async function createRoom(roomName: string) {
@@ -85,10 +88,15 @@ function RoomList() {
                     <div className="row">
                         <div className="col-md-12">
                             <h3 className="title d-inline">채팅방 리스트</h3>
-                            <Button className="btn-primary" style={{float: "right"}}
-                                    onClick={() => navigate(JOIN_PATH)}>회원가입</Button>
-                            <Button className="btn-primary" style={{float: "right"}}
-                                    onClick={() => navigate(LOGIN_PATH)}>로그인</Button>
+                            {isLogin ? <Button className="btn-primary" style={{float: "right"}}
+                                               onClick={onClickLogout}>로그아웃</Button>
+                                : <Button className="btn-primary" style={{float: "right"}}
+                                          onClick={() => navigate(LOGIN_PATH)}>로그인</Button>}
+                            {isLogin ? <Button className="btn-primary" style={{float: "right"}}
+                                               onClick={() => navigate(MY_ACCOUNT_PATH)}>회원정보</Button>
+                                : <Button className="btn-primary" style={{float: "right"}}
+                                        onClick={() => navigate(JOIN_PATH)}>회원가입</Button>}
+
                         </div>
                     </div>
                     <div className="input-group">
