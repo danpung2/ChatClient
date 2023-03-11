@@ -1,14 +1,18 @@
-// TODO - 채팅방 웹소켓 설정
-
-import {useEffect, useRef, useState} from "react";
-import {useParams} from "react-router-dom";
-import SockJs from "sockjs-client";
-import StompJs, {CompatClient, Stomp} from "@stomp/stompjs";
+import React, {useEffect, useRef, useState} from "react";
 import {useSelector} from "react-redux";
 import {RootState} from "../redux/store";
 import SockJS from "sockjs-client";
+import {CompatClient, Stomp} from "@stomp/stompjs";
+import {WS_DEFAULT, WS_ENTER, WS_SEND, WS_SUBSCRIBE} from "../common/constants/ws.const";
+
+interface Message {
+    messageId: number,
+    sender: string,
+    content: string
+}
 
 function RoomDetail() {
+    const client = useRef<CompatClient>();
     const userId = useSelector((state: RootState) => state.persist.user.user.id);
     const isLogin = useSelector((state: RootState) => state.persist.user.isLogin);
     const nickname = useSelector((state: RootState) => state.persist.user.user.nickname);
@@ -16,82 +20,113 @@ function RoomDetail() {
     const roomId = useSelector((state: RootState) => state.persist.room.room.id);
     const roomName = useSelector((state: RootState) => state.persist.room.room.roomName);
 
-    // const ROOM_ID = 1;
-    // const client = useRef<CompatClient>();
-    // const [chatMessageList, setChatMessageList] = useState<IChatDetail[]>([]);
-    // const [chatName, setChatName] = useState("");
-    // const [open, setOpen] = useState(false);
-    // const [isChat, setIsChat] = useState(false);
-    // const [chatMessage, setChatMessage] = useState<IChatDetail>();
+    const [content, setContent] = useState("");
+    const [messageList, setMessageList] = useState<Message[]>([]);
 
-    // const handleClose = () => {
-    //     setOpen(false);
+    // let sock = new SockJS(WS_DEFAULT);
+    // let ws = Stomp.over(sock);
+
+    // const preventClose = (e: BeforeUnloadEvent) => {
+    //     e.preventDefault();
+    //     e.returnValue = ""; //Chrome에서 동작하도록; deprecated
     // };
-    // const handleOpen = () => {
-    //     setOpen(true);
+    //
+    // const preventGoBack = () => {
+    //     history.pushState(null, "", location.href);
     // };
     //
     // useEffect(() => {
-    //     if (chatMessage) {
-    //         setChatMessageList([...chatMessageList, chatMessage]);
-    //     }
-    // }, [chatMessage]);
+    //     (() => {
+    //         window.addEventListener("beforeunload", preventClose);
+    //     })();
     //
-    // const sendHandler = () => {
-    //     client.current!.send(
-    //         "/pub/chat/message",
-    //         {},
-    //         JSON.stringify({
-    //             roomId: ROOM_ID,
-    //             sender: nickname,
-    //             message: chatMessage,
-    //         })
-    //     );
-    // };
+    //     return () => {
+    //         window.removeEventListener("beforeunload", preventClose);
+    //     };
+    // }, []);
     //
-    // const connectHandler = (mockId: string, mockName: string) => {
-    //     client.current = Stomp.over(() => {
-    //         const sock = new SockJS("http://localhost:8080/ws");
-    //         return sock;
-    //     });
-    //     setChatMessageList([]);
-    //     client.current.connect(
-    //         {
+    // useEffect(() => {
+    //     history.pushState(null, "", location.href);
+    //     window.addEventListener("popstate", preventGoBack);
     //
-    //         },
-    //         () => {
-    //             // (messageList: IChatDetail[]) => {
-    //
-    //             client.current!.subscribe(
-    //                 `/sub/chat/room/${mockId}`,
-    //                 (message) => {
-    //                     setChatMessage(JSON.parse(message.body));
-    //                 },
-    //                 { simpDestination: mockId }
-    //             );
-    //         }
-    //     );
-    //
-    //     setIsChat(true);
-    // };
+    //     return () => {
+    //         window.removeEventListener("popstate", preventGoBack);
+    //         handleCloseDrawer();
+    //     };
+    // }, []);
 
-    const sock = new SockJS("/ws/chat");
-    const ws = Stomp.over(sock);
-    let reconnect = 0;
+    useEffect(() => {
+        connect();
+    }, []);
+
 
     const sendMessage = () => {
-        ws.send("/app/chat/message");
+        console.log(JSON.stringify({
+            roomId, roomName, sender: nickname, content
+        }));
+        client.current?.send(WS_SEND, {}, JSON.stringify({
+            roomId, roomName, sender: nickname, content
+        }));
+        setContent("");
+        client.current?.subscribe(WS_SUBSCRIBE + roomId, message => {
+            console.log(message.body);
+            console.log(JSON.parse(message.body));
+            receivedMessage(JSON.parse(message.body));
+        });
+        // window.location.reload();
     }
 
-    const onClickSendMessage = (e:any) => {
+    const receivedMessage = (receive: any) => {
+        const newMessage: Message = {
+            messageId: receive.messageId, sender: receive.sender, content: receive.content
+        }
+        setMessageList([newMessage, ...messageList]);
+    }
+
+    const connect = () => {
+        // ws.connect({}, () => {
+        //     ws.subscribe(WS_SUBSCRIBE + roomId, message => {
+        //         receivedMessage(JSON.parse(message.body));
+        //     })
+        //     ws.send(WS_ENTER, {}, JSON.stringify({
+        //         roomId, roomName, sender: nickname
+        //     }));
+        // }, (err: Error) => {
+        //     console.log(err);
+        //     // if(reconnect++ <= 5){
+        //     //     setTimeout(() => {
+        //     //         console.log("Reconnect");
+        //     //         sock = new SockJS("/ws/chat");
+        //     //         ws = Stomp.over(sock);
+        //     //         connect();
+        //     //     }, 10 * 1000);
+        //     // }
+        // })
+        client.current = Stomp.over(() => {
+            const sock = new SockJS(WS_DEFAULT);
+            return sock;
+        });
+        client.current?.connect({}, () => {
+            client.current?.subscribe(WS_SUBSCRIBE + roomId, message => {
+                receivedMessage(JSON.parse(message.body));
+            });
+            client.current?.send(WS_ENTER, {}, JSON.stringify({
+                roomId, roomName, sender: nickname
+            }));
+        })
+    }
+
+    const onChangeContent = (e: any) => {
         e.preventDefault();
-        if(!isLogin){
+        setContent(e.target.value);
+    }
+
+    const onClickSendMessage = (e: any) => {
+        e.preventDefault();
+        if (!isLogin) {
             alert("비회원은 채팅이 불가능합니다. 로그인을 해주세요.");
         } else {
-            console.log("userId: " + userId);
-            console.log("nickname: " + nickname);
-            console.log("roomId: " + roomId);
-            console.log("roomName: " + roomName);
+            sendMessage();
         }
     }
 
@@ -99,13 +134,13 @@ function RoomDetail() {
         <>
             <div className="container" id="app">
                 <div>
-                    {/*<h2>{{room.name}}</h2>*/}
+                    <h2>{roomName}</h2>
                 </div>
                 <div className="input-group">
                     <div className="input-group-prepend">
                         <label className="input-group-text">내용</label>
                     </div>
-                    <input type="text" className="form-control"/>
+                    <input type="text" className="form-control" onChange={onChangeContent}/>
                     <div className="input-group-append">
                         <button className="btn btn-primary" type="button" onClick={onClickSendMessage}>
                             보내기
@@ -113,9 +148,11 @@ function RoomDetail() {
                     </div>
                 </div>
                 <ul className="list-group">
-                    <li className="list-group-item">
-                        {/*{{message.sender}} - {{message.message}}*/}
-                    </li>
+                    {messageList && messageList.map(msg => (
+                        <li key={msg.messageId} className="list-group-item list-group-item-action">
+                            {msg.sender}: {msg.content}
+                        </li>
+                    ))}
                 </ul>
                 <div></div>
             </div>

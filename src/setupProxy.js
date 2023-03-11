@@ -9,7 +9,7 @@ module.exports = function(app) {
     //     })
     // );
     app.use(
-        "/ws",
-        createProxyMiddleware({ target: "http://localhost:8080", ws: true })
+        "/ws/chat",
+        createProxyMiddleware({ target: "http://localhost:8080/ws/chat", ws: true })
     );
 };
