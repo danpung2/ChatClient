@@ -24,38 +24,6 @@ function RoomDetail() {
     const [message, setMessage] = useState<Message>();
     const [messageList, setMessageList] = useState<Message[]>([]);
 
-    // let sock = new SockJS(WS_DEFAULT);
-    // let ws = Stomp.over(sock);
-
-    // const preventClose = (e: BeforeUnloadEvent) => {
-    //     e.preventDefault();
-    //     e.returnValue = ""; //Chrome에서 동작하도록; deprecated
-    // };
-    //
-    // const preventGoBack = () => {
-    //     history.pushState(null, "", location.href);
-    // };
-    //
-    // useEffect(() => {
-    //     (() => {
-    //         window.addEventListener("beforeunload", preventClose);
-    //     })();
-    //
-    //     return () => {
-    //         window.removeEventListener("beforeunload", preventClose);
-    //     };
-    // }, []);
-    //
-    // useEffect(() => {
-    //     history.pushState(null, "", location.href);
-    //     window.addEventListener("popstate", preventGoBack);
-    //
-    //     return () => {
-    //         window.removeEventListener("popstate", preventGoBack);
-    //         handleCloseDrawer();
-    //     };
-    // }, []);
-
     useEffect(() => {
         connect();
     }, []);
@@ -77,7 +45,6 @@ function RoomDetail() {
             console.log(JSON.parse(message.body));
             // receivedMessage(JSON.parse(message.body));
         });
-        // window.location.reload();
     }
 
     const receivedMessage = (receive: any) => {
@@ -88,29 +55,10 @@ function RoomDetail() {
     }
 
     const connect = () => {
-        // ws.connect({}, () => {
-        //     ws.subscribe(WS_SUBSCRIBE + roomId, message => {
-        //         receivedMessage(JSON.parse(message.body));
-        //     })
-        //     ws.send(WS_ENTER, {}, JSON.stringify({
-        //         roomId, roomName, sender: nickname
-        //     }));
-        // }, (err: Error) => {
-        //     console.log(err);
-        //     // if(reconnect++ <= 5){
-        //     //     setTimeout(() => {
-        //     //         console.log("Reconnect");
-        //     //         sock = new SockJS("/ws/chat");
-        //     //         ws = Stomp.over(sock);
-        //     //         connect();
-        //     //     }, 10 * 1000);
-        //     // }
-        // })
         client.current = Stomp.over(() => {
             const sock = new SockJS(WS_DEFAULT);
             return sock;
         });
-        setMessageList([]);
         client.current?.connect({}, () => {
             client.current?.subscribe(WS_SUBSCRIBE + roomId, message => {
                 // receivedMessage(JSON.parse(message.body));
