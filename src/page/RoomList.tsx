@@ -3,11 +3,11 @@ import axios from "axios";
 import {GET_ALL_CHAT_ROOM, CREATE_ROOM, ENTER_ROOM} from "../common/constants/api.const";
 import {useNavigate, useParams} from "react-router-dom";
 import {ROOT_PATH, ROOM_DETAIL_PATH, LOGIN_PATH, JOIN_PATH, MY_ACCOUNT_PATH} from "../common/constants/path.const";
-import SockJS from 'sockjs-client';
-import StompJs from '@stomp/stompjs';
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {RootState} from "../redux/store";
 import {Button} from "react-bootstrap";
+import {userActions} from "../redux/slice/userSlice";
+import {roomActions} from "../redux/slice/roomSlice";
 
 interface Room {
     roomId: string;
@@ -16,11 +16,12 @@ interface Room {
 
 function RoomList() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
     const [roomList, setRoomList] = useState<Room[]>([]);
     const [roomName, setRoomName] = useState("");
 
     const isLogin = useSelector((state: RootState) => state.persist.user.isLogin);
-    const userId = useSelector((state: RootState) => state.persist.user.user.id);
     const nickname = useSelector((state: RootState) => state.persist.user.user.nickname);
 
     useEffect(() => {
@@ -33,14 +34,13 @@ function RoomList() {
     }
 
     const onClickLogout = async () => {
-
+        dispatch(userActions.logout());
     }
 
     async function createRoom(roomName: string) {
         const response = await axios.post(CREATE_ROOM, null, {
             params: {roomName}
         });
-        console.log(response.data);
     }
 
     async function enterRoom(roomId: number, nickname: string) {
@@ -57,7 +57,6 @@ function RoomList() {
             alert("채팅방을 생성하려면 로그인이 필요합니다.");
         } else {
             createRoom(roomName).then((res) => {
-                console.log(res);
                 alert("채팅방이 생성되었습니다.");
             }).catch((err) => {
                 alert("채팅방 생성에 실패하였습니다.");
@@ -70,9 +69,18 @@ function RoomList() {
         setRoomName(event.target.value);
     }
 
-    const onEnterRoomHandler = (event: any, roomId: number, nickname: string) => {
+    const onEnterRoomHandler = (event: any, roomId: number, roomName: string) => {
         enterRoom(roomId, nickname).then((res) => {
             alert("채팅방 입장에 성공하였습니다.");
+            console.log(res);
+            dispatch((
+                roomActions.enter({
+                    room: {
+                        id: roomId,
+                        roomName: roomName
+                    }
+                })
+            ));
 
             navigate(ROOM_DETAIL_PATH);
         }).catch((err) => {
@@ -114,7 +122,7 @@ function RoomList() {
                 <ul className="list-group">
                     {roomList && roomList.map(room => (
                         <li key={room.roomId} className="list-group-item list-group-item-action" onClick={event => {
-                            onEnterRoomHandler(event, parseInt(room.roomId), nickname)
+                            onEnterRoomHandler(event, parseInt(room.roomId), room.roomName)
                         }}>
                             {room.roomName}
                         </li>

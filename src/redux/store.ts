@@ -4,6 +4,7 @@ import {combineReducers, configureStore, getDefaultMiddleware} from "@reduxjs/to
 import userSlice from "./slice/userSlice";
 import errorSlice from "./slice/errorSlice";
 import dateSlice from "./slice/dateSlice";
+import roomSlice from "./slice/roomSlice";
 
 const persistConfig = {
     key: 'root',
@@ -12,6 +13,7 @@ const persistConfig = {
 
 const reducers = combineReducers({
     user: userSlice,
+    room: roomSlice,
 });
 
 
