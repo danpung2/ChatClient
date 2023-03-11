@@ -34,6 +34,21 @@ function RoomDetail() {
         }
     }, [message]);
 
+    const preventClose = (e: BeforeUnloadEvent) => {
+        e.preventDefault();
+        e.returnValue = ""; //Chrome에서 동작하도록; deprecated
+    };
+
+    useEffect(() => {
+        (() => {
+            window.addEventListener("beforeunload", preventClose);
+        })();
+
+        return () => {
+            window.removeEventListener("beforeunload", preventClose);
+        };
+    }, []);
+
 
     const sendMessage = () => {
         client.current?.send(WS_SEND, {}, JSON.stringify({
