@@ -21,6 +21,7 @@ function RoomDetail() {
     const roomName = useSelector((state: RootState) => state.persist.room.room.roomName);
 
     const [content, setContent] = useState("");
+    const [message, setMessage] = useState<Message>();
     const [messageList, setMessageList] = useState<Message[]>([]);
 
     // let sock = new SockJS(WS_DEFAULT);
@@ -59,19 +60,22 @@ function RoomDetail() {
         connect();
     }, []);
 
+    useEffect(() => {
+        if (message) {
+            setMessageList([...messageList, message]);
+        }
+    }, [message]);
+
 
     const sendMessage = () => {
-        console.log(JSON.stringify({
-            roomId, roomName, sender: nickname, content
-        }));
         client.current?.send(WS_SEND, {}, JSON.stringify({
-            roomId, roomName, sender: nickname, content
+            roomId, roomName, nickname, content
         }));
         setContent("");
         client.current?.subscribe(WS_SUBSCRIBE + roomId, message => {
             console.log(message.body);
             console.log(JSON.parse(message.body));
-            receivedMessage(JSON.parse(message.body));
+            // receivedMessage(JSON.parse(message.body));
         });
         // window.location.reload();
     }
@@ -106,12 +110,14 @@ function RoomDetail() {
             const sock = new SockJS(WS_DEFAULT);
             return sock;
         });
+        setMessageList([]);
         client.current?.connect({}, () => {
             client.current?.subscribe(WS_SUBSCRIBE + roomId, message => {
-                receivedMessage(JSON.parse(message.body));
+                // receivedMessage(JSON.parse(message.body));
+                setMessage(JSON.parse(message.body));
             });
             client.current?.send(WS_ENTER, {}, JSON.stringify({
-                roomId, roomName, sender: nickname
+                roomId, roomName, nickname
             }));
         })
     }
@@ -140,7 +146,7 @@ function RoomDetail() {
                     <div className="input-group-prepend">
                         <label className="input-group-text">내용</label>
                     </div>
-                    <input type="text" className="form-control" onChange={onChangeContent}/>
+                    <input type="text" className="form-control" value={content} onChange={onChangeContent}/>
                     <div className="input-group-append">
                         <button className="btn btn-primary" type="button" onClick={onClickSendMessage}>
                             보내기
