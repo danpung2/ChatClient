@@ -1,0 +1,24 @@
+.text-box{
+    position : fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+}
+
+.input-box{
+    width: 85%;
+    height: 50px;
+    border-radius: 3px;
+
+    padding-left: 5%;
+}
+
+input:focus {
+    outline: none;
+}
+
+.send-btn{
+    text-align: center;
+    width: 15%;
+    height: 50px;
+}

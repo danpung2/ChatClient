@@ -1,0 +1,10 @@
+.other-say {
+    margin: 5% 15% 0 5%;
+    text-align: left;
+}
+.other-say-prompt{
+    display: inline-block;
+    color: #6DD5FA;
+    margin-left: 1%;
+    vertical-align: top;
+}

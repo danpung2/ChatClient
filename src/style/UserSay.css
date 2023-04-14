@@ -1,0 +1,10 @@
+.user-say {
+    margin: 5% 5% 0 0;
+    text-align: right;
+}
+.user-say-prompt{
+    display: inline-block;
+    color: #f5af19;
+    margin-left: 3%;
+    vertical-align: top;
+}

@@ -4,8 +4,6 @@ import {JOIN} from "../common/constants/api.const";
 import {Button, Card, CardBody, CardHeader, Col, Form, FormGroup, Input, Row} from "reactstrap";
 import {useNavigate} from "react-router-dom";
 import {LOGIN_PATH, ROOT_PATH} from "../common/constants/path.const";
-import {useDispatch} from "react-redux";
-import {userActions} from "../redux/slice/userSlice";
 
 function Join(){
     const navigate = useNavigate();
