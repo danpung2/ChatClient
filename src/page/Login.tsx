@@ -1,4 +1,4 @@
-import {useState} from "react";
+import React, {useState} from "react";
 import axios, {AxiosResponse} from "axios";
 import {LOGIN} from "../common/constants/api.const";
 import {Button, Card, CardBody, CardHeader, Col, Form, FormGroup, Input, Row} from "reactstrap";
@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import {userActions} from "../redux/slice/userSlice";
 import {ROOT_PATH} from "../common/constants/path.const";
+import "../style/login.css";
 
 function Login() {
 
@@ -61,6 +62,23 @@ function Login() {
 
     return (
         <>
+            <div className={"container login-container"}>
+                <div className={"header login-header"}>
+                    <div className={"title login-title"}>로그인</div>
+                </div>
+                <div className={"login-input-container"}>
+                    <div className={"email-container"}>
+                        <label className={"login-label email-label"}>Email</label>
+                        <input className={"login-input email-input"} placeholder="example@email.com" type="email" onChange={onChangeEmail}/>
+                    </div>
+                    <div className={"password-container"}>
+                        <label className={"login-label password-label"}>Password</label>
+                        <input className={"login-input password-input"} placeholder="password" type="password" onChange={onChangePassword}/>
+                    </div>
+                </div>
+            </div>
+
+
             <Row>
                 <Col xs={1} md={3}></Col>
                 <Col md="12" lg="6">

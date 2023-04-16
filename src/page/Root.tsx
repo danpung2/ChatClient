@@ -11,9 +11,12 @@ function Root(){
 
     const isLogin = useSelector((state: RootState) => state.persist.user.isLogin);
 
+    /**
+     * 로그인 상태면 ROOM_LIST 페이지로 이동
+     */
     useEffect(() => {
         if(isLogin){
-            navigate(MAIN_PATH);
+            navigate(ROOM_LIST_PATH);
         }
     }, []);
 
@@ -43,9 +46,9 @@ function Root(){
                 </div>
             </div>
             <div className={"button-section"}>
-                <Button className={"login-btn"} color={"info"} onClick={onClickToLogin}>로그인</Button>
-                <Button className={"join-btn"} color={"warning"} onClick={onClickToJoin}>회원가입</Button>
-                <Button className={"preview-btn"} color={"light"} onClick={onClickToRoomList}>미리보기</Button>
+                <Button className={"login-btn root-login-btn"} color={"info"} onClick={onClickToLogin}>로그인</Button>
+                <Button className={"join-btn root-join-btn"} color={"warning"} onClick={onClickToJoin}>회원가입</Button>
+                <Button className={"preview-btn root-preview-btn"} color={"light"} onClick={onClickToRoomList}>채팅방 미리보기</Button>
             </div>
         </>
     )

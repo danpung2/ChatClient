@@ -21,7 +21,7 @@ function RoomDetail() {
     const roomName = useSelector((state: RootState) => state.persist.room.room.roomName);
 
     const [content, setContent] = useState("");
-    const [message, setMessage] = useState<Message>();
+    const [message, setMessage] = useState<Message | null>(null);
     const [messageList, setMessageList] = useState<Message[]>([]);
 
     useEffect(() => {
@@ -29,8 +29,16 @@ function RoomDetail() {
     }, []);
 
     useEffect(() => {
-        if (message) {
-            setMessageList([...messageList, message]);
+        let flag = true;
+        if(message){
+            messageList.map((msg) => {
+                if(msg.messageId === message.messageId) {
+                    flag = false;
+                }
+            })
+            if(flag){
+                setMessageList([...messageList, message]);
+            }
         }
     }, [message]);
 
@@ -49,24 +57,21 @@ function RoomDetail() {
         };
     }, []);
 
-
     const sendMessage = () => {
-        client.current?.send(WS_SEND, {}, JSON.stringify({
-            roomId, roomName, nickname, content
-        }));
-        setContent("");
-        client.current?.subscribe(WS_SUBSCRIBE + roomId, message => {
-            console.log(message.body);
-            console.log(JSON.parse(message.body));
-            // receivedMessage(JSON.parse(message.body));
-        });
+        if(content !== ""){
+            client.current?.send(WS_SEND, {}, JSON.stringify({
+                roomId, roomName, nickname, content
+            }));
+            setContent("");
+        }
     }
 
     const receivedMessage = (receive: any) => {
         const newMessage: Message = {
             messageId: receive.messageId, sender: receive.sender, content: receive.content
         }
-        setMessageList([newMessage, ...messageList]);
+        setMessage(newMessage);
+
     }
 
     const connect = () => {
@@ -76,7 +81,7 @@ function RoomDetail() {
         });
         client.current?.connect({}, () => {
             client.current?.subscribe(WS_SUBSCRIBE + roomId, message => {
-                // receivedMessage(JSON.parse(message.body));
+                receivedMessage(JSON.parse(message.body));
                 setMessage(JSON.parse(message.body));
             });
             client.current?.send(WS_ENTER, {}, JSON.stringify({
@@ -117,9 +122,10 @@ function RoomDetail() {
                     </div>
                 </div>
                 <ul className="list-group">
-                    {messageList && messageList.map(msg => (
+                    {messageList.map((msg) => (
                         <li key={msg.messageId} className="list-group-item list-group-item-action">
-                            {msg.sender}: {msg.content}
+                            <div className={"room-detail-sender"}>{msg.sender}:</div>
+                            <div className={"room-detail-content"}>{msg.content}</div>
                         </li>
                     ))}
                 </ul>

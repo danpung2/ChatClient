@@ -1,0 +1,29 @@
+.room-list-header {
+    display: block;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 5% auto;
+}
+
+.room-list-title {
+    display: inline-block;
+    text-align: center;
+    color: #6DD5FA;
+    font-size: 24px;
+}
+
+.room-list-btn {
+    display: inline-block;
+    width: 100px;
+    height: 40px;
+}
+
+.room-list-main-area-room-list{
+    display: block;
+}
+
+.room-list-item{
+    display: block;
+}

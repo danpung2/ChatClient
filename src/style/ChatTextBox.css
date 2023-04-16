@@ -13,10 +13,6 @@
     padding-left: 5%;
 }
 
-input:focus {
-    outline: none;
-}
-
 .send-btn{
     text-align: center;
     width: 15%;

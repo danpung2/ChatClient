@@ -8,6 +8,7 @@ import {RootState} from "../redux/store";
 import {Button} from "react-bootstrap";
 import {userActions} from "../redux/slice/userSlice";
 import {roomActions} from "../redux/slice/roomSlice";
+import "../style/RoomList.css";
 
 interface Room {
     roomId: string;
@@ -20,6 +21,8 @@ function RoomList() {
 
     const [roomList, setRoomList] = useState<Room[]>([]);
     const [roomName, setRoomName] = useState("");
+    const [expiredDate, setExpiredDate] = useState("");
+    const [expiredTime, setExpiredTime] = useState("");
 
     const isLogin = useSelector((state: RootState) => state.persist.user.isLogin);
     const nickname = useSelector((state: RootState) => state.persist.user.user.nickname);
@@ -37,17 +40,14 @@ function RoomList() {
         dispatch(userActions.logout());
     }
 
-    async function createRoom(roomName: string) {
-        const response = await axios.post(CREATE_ROOM, null, {
-            params: {roomName}
-        });
+    async function createRoom(roomName: string, expiredDate: string, expiredTime: string) {
+        await axios.post(CREATE_ROOM, {roomName, expiredDate, expiredTime});
     }
 
     async function enterRoom(roomId: number, nickname: string) {
-        const response = await axios.get(ENTER_ROOM, {
+        await axios.get(ENTER_ROOM, {
             params: {roomId, nickname}
         });
-        console.log(response.data);
     }
 
     const onCreateRoomHandler = (event: any) => {
@@ -55,14 +55,38 @@ function RoomList() {
 
         if (!isLogin) {
             alert("채팅방을 생성하려면 로그인이 필요합니다.");
+            navigate(LOGIN_PATH);
         } else {
-            createRoom(roomName).then((res) => {
+            /*
+            TODO: expiredDate, expiredTime 유저한테 입력받기
+             */
+            const date = new Date();
+
+            const year = date.getFullYear().toString();
+            const month = ('0' + (date.getMonth() + 1)).slice(-2).toString();
+            const day = ('0' + date.getDate()).slice(-2).toString();
+
+            setExpiredDate(year + '-' + month + '-' + day);
+
+            const hours = ('0' + date.getHours()).slice(-2).toString();
+            const minutes = ('0' + date.getMinutes()).slice(-2).toString();
+            const seconds = ('0' + date.getSeconds()).slice(-2).toString();
+            setExpiredTime(hours + ':' + minutes + ':' + seconds);
+
+            console.log(expiredDate);
+            console.log(expiredTime);
+
+            createRoom(roomName, expiredDate, expiredTime).then((res) => {
                 alert("채팅방이 생성되었습니다.");
+                window.location.reload();
             }).catch((err) => {
                 alert("채팅방 생성에 실패하였습니다.");
+                console.log(expiredDate);
+                console.log(expiredTime);
+                // window.location.reload();
             })
+
         }
-        window.location.replace(ROOT_PATH);
     };
 
     const onChangeRoomName = (event: any) => {
@@ -72,7 +96,7 @@ function RoomList() {
     const onEnterRoomHandler = (event: any, roomId: number, roomName: string) => {
         enterRoom(roomId, nickname).then((res) => {
             alert("채팅방 입장에 성공하였습니다.");
-            console.log(res);
+
             dispatch((
                 roomActions.enter({
                     room: {
@@ -84,7 +108,6 @@ function RoomList() {
 
             navigate(ROOM_DETAIL_PATH);
         }).catch((err) => {
-            console.log(err);
             alert("채팅방 입장에 실패하였습니다.");
         })
     }
@@ -93,23 +116,21 @@ function RoomList() {
         <>
             <div className="App">
                 <div className="container" id="app">
-                    <div className="row">
-                        <div className="col-md-12">
-                            <h3 className="title d-inline">채팅방 리스트</h3>
-                            {isLogin ? <Button className="btn-primary" style={{float: "right"}}
-                                               onClick={onClickLogout}>로그아웃</Button>
-                                : <Button className="btn-primary" style={{float: "right"}}
-                                          onClick={() => navigate(LOGIN_PATH)}>로그인</Button>}
-                            {isLogin ? <Button className="btn-primary" style={{float: "right"}}
-                                               onClick={() => navigate(MY_ACCOUNT_PATH)}>회원정보</Button>
-                                : <Button className="btn-primary" style={{float: "right"}}
-                                        onClick={() => navigate(JOIN_PATH)}>회원가입</Button>}
-
-                        </div>
+                    <div className={"header room-list-header"}>
+                        <div className={"title room-list-title"}>채팅방 리스트</div>
+                        {/*{isLogin ? <Button className="room-list-btn logout-btn room-list-logout-btn" variant={"danger"}*/}
+                        {/*                   onClick={onClickLogout}>로그아웃</Button>*/}
+                        {/*    : <Button className="room-list-btn login-btn room-list-login-btn" variant={"primary"}*/}
+                        {/*              onClick={() => navigate(LOGIN_PATH)}>로그인</Button>}*/}
+                        {/*{isLogin ? <Button className="room-list-btn info-btn room-list-info-btn" variant={"secondary"}*/}
+                        {/*                   onClick={() => navigate(MY_ACCOUNT_PATH)}>회원정보</Button>*/}
+                        {/*    : <Button className="room-list-btn join-btn room-list-join-btn" variant={"secondary"}*/}
+                        {/*              onClick={() => navigate(JOIN_PATH)}>회원가입</Button>}*/}
                     </div>
-                    <div className="input-group">
-                        <div className="input-group-prepend">
-                            <label className="input-group-text">방제목</label>
+
+                    <div className="input-group room-list-main-area">
+                        <div className="input-group-prepend room-list-main-area-header">
+                            <label className="input-group-text room-name-label">방이름</label>
                         </div>
                         <input type="text" className="form-control" onChange={onChangeRoomName}/>
                         <div className="input-group-append">
@@ -117,17 +138,20 @@ function RoomList() {
                                 채팅방 개설
                             </button>
                         </div>
+                        <div className={"room-list-main-area-room-list"}>
+                            <ul className="list-group">
+                                {roomList && roomList.map(room => (
+                                    <li key={room.roomId} className="list-group-item list-group-item-action room-list-item"
+                                        onClick={event => {
+                                            onEnterRoomHandler(event, parseInt(room.roomId), room.roomName)
+                                        }}>
+                                        {room.roomName}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
                 </div>
-                <ul className="list-group">
-                    {roomList && roomList.map(room => (
-                        <li key={room.roomId} className="list-group-item list-group-item-action" onClick={event => {
-                            onEnterRoomHandler(event, parseInt(room.roomId), room.roomName)
-                        }}>
-                            {room.roomName}
-                        </li>
-                    ))}
-                </ul>
             </div>
         </>
     )

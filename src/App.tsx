@@ -17,7 +17,6 @@ import Login from "./page/Login";
 import Join from "./page/Join";
 import MyAccount from "./page/MyAccount";
 import Root from "./page/Root";
-import Main from "./page/Main";
 
 function App() {
 
@@ -26,11 +25,10 @@ function App() {
             <BrowserRouter>
                 <Routes>
                     <Route path={ROOT_PATH} element={<Root/>}/>
-                    <Route path={MAIN_PATH} element={<Main/>}/>
+                    <Route path={ROOM_LIST_PATH} element={<RoomList/>}/>
                     <Route path={LOGIN_PATH} element={<Login/>}/>
                     <Route path={JOIN_PATH} element={<Join/>}/>
                     <Route path={MY_ACCOUNT_PATH} element={<MyAccount/>}/>
-                    <Route path={ROOM_LIST_PATH} element={<RoomList/>}/>
                     <Route path={ROOM_DETAIL_PATH} element={<RoomDetail/>}/>
                 </Routes>
             </BrowserRouter>

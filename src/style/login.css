@@ -1,0 +1,18 @@
+.login-container {
+
+}
+
+.login-header {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 5% auto;
+}
+
+.login-title {
+    display: inline-block;
+    text-align: center;
+    color: #6DD5FA;
+    font-size: 24px;
+}
